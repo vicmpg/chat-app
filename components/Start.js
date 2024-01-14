@@ -4,6 +4,8 @@ import {
   Button,
   ImageBackground,
   ImageBase,
+  KeyboardAvoidingView,
+  Platform,
   StyleSheet,
   Text,
   TextInput,
@@ -12,85 +14,89 @@ import {
 } from "react-native";
 // import img from "../assets/splash.png";
 const imgBackground = require("../assets/bg-startscreen.png");
-
 const Start = ({ navigation }) => {
   const [background, setBackground] = useState();
   const [username, setUsername] = useState();
-
   //   const colorsArray = ["green", "blue", "red", "black"];
 
   return (
-    <ImageBackground source={imgBackground} style={styles.image}>
-      {/* app title: */}
-      <Text style={styles.title}>Chat App</Text>
+    <View style={styles.container}>
+      <ImageBackground source={imgBackground} style={styles.image}>
+        {/* app title: */}
+        <Text style={styles.title}>Chatroom App</Text>
 
-      {/* container for imput, color choice and button */}
-      <View style={styles.imputBox}>
-        {/* username imput */}
-        <TextInput
-          placeholder="Your Name"
-          value={username}
-          onChangeText={setUsername}
-          style={styles.textImput}
-        ></TextInput>
+        {/* container for imput, color choice and button */}
+        <View style={styles.imputBox}>
+          {/* username imput */}
+          <TextInput
+            placeholder="Your Name"
+            value={username}
+            onChangeText={setUsername}
+            style={styles.textImput}
+          ></TextInput>
 
-        <View>
-          <Text style={styles.chooseBgText}>Choose Background Color</Text>
+          <View>
+            <Text style={styles.chooseBgText}>Choose Background Color</Text>
 
-          {/* testing color update: */}
-          {/* <Text>{background}</Text> */}
+            {/* testing color update: */}
+            {/* <Text>{background}</Text> */}
 
-          {/* container for colors: */}
-          <View style={styles.colorButtonBox}>
-            {/* color 1 */}
+            {/* container for colors: */}
+            <View style={styles.colorButtonBox}>
+              {/* color 1 */}
 
-            <TouchableOpacity
-              style={[styles.colorButton, styles.colorInput1]}
-              onPress={() => {
-                setBackground(styles.colorInput1.backgroundColor);
-              }}
-            ></TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.colorButton, styles.colorInput1]}
+                onPress={() => {
+                  setBackground(styles.colorInput1.backgroundColor);
+                }}
+              ></TouchableOpacity>
 
-            {/* color 2 */}
-            <TouchableOpacity
-              style={[styles.colorButton, styles.colorInput2]}
-              onPress={() => {
-                setBackground(styles.colorInput2.backgroundColor);
-              }}
-            ></TouchableOpacity>
+              {/* color 2 */}
+              <TouchableOpacity
+                style={[styles.colorButton, styles.colorInput2]}
+                onPress={() => {
+                  setBackground(styles.colorInput2.backgroundColor);
+                }}
+              ></TouchableOpacity>
 
-            {/* color 3 */}
-            <TouchableOpacity
-              style={[styles.colorButton, styles.colorInput3]}
-              onPress={() => {
-                setBackground(styles.colorInput3.backgroundColor);
-              }}
-            ></TouchableOpacity>
+              {/* color 3 */}
+              <TouchableOpacity
+                style={[styles.colorButton, styles.colorInput3]}
+                onPress={() => {
+                  setBackground(styles.colorInput3.backgroundColor);
+                }}
+              ></TouchableOpacity>
 
-            {/* color 4 */}
-            <TouchableOpacity
-              style={[styles.colorButton, styles.colorInput4]}
-              onPress={() => {
-                setBackground(styles.colorInput4.backgroundColor);
-              }}
-            ></TouchableOpacity>
+              {/* color 4 */}
+              <TouchableOpacity
+                style={[styles.colorButton, styles.colorInput4]}
+                onPress={() => {
+                  setBackground(styles.colorInput4.backgroundColor);
+                }}
+              ></TouchableOpacity>
+            </View>
           </View>
+          {/* button to start chatting, links to chat.js */}
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => {
+              navigation.navigate("Chat", {
+                name: username,
+                color: background,
+              });
+            }}
+          >
+            <Text style={styles.buttonText}>Start Chatting</Text>
+          </TouchableOpacity>
         </View>
-        {/* button to start chatting, links to chat.js */}
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => {
-            navigation.navigate("Chat", {
-              name: username,
-              color: background,
-            });
-          }}
-        >
-          <Text style={styles.buttonText}>Start Chatting</Text>
-        </TouchableOpacity>
-        {/* {console.log(username)} */}
-      </View>
-    </ImageBackground>
+      </ImageBackground>
+
+      {/* when typing, makes the keyboard not hide imput or information that would be behind it // padding should be used for ios instead of "height*/}
+      {Platform.OS === "ios" ? (
+        <KeyboardAvoidingView behavior="padding" />
+      ) : null}
+    </View>
   );
 };
 
