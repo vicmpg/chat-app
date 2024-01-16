@@ -1,3 +1,10 @@
+import {
+  addDoc,
+  collection,
+  onSnapshot,
+  orderBy,
+  query,
+} from "firebase/firestore";
 import { useEffect, useState } from "react";
 import {
   KeyboardAvoidingView,
@@ -8,16 +15,16 @@ import {
 } from "react-native";
 import { Bubble, GiftedChat } from "react-native-gifted-chat";
 
-const Chat = ({ route, navigation }) => {
+const Chat = ({ route, navigation, db }) => {
   const color = route.params.color;
   const name = route.params.name;
+  const userID = route.params._id;
   // console.log(name);
 
   const [messages, setMessages] = useState([]);
   const onSend = (newMessages) => {
-    setMessages((previousMessages) =>
-      GiftedChat.append(previousMessages, newMessages)
-    );
+    addDoc(collection(db, "messages"), newMessages[0]);
+    console.log(messages);
   };
 
   const renderBubble = (props) => {
@@ -33,36 +40,28 @@ const Chat = ({ route, navigation }) => {
   };
 
   //message example
-  useEffect(() => {
-    setMessages([
-      {
-        _id: 3,
-        text: "Hello again developer",
-        createdAt: new Date(),
-        user: {
-          _id: 2,
-          name: "React Native",
-          avatar: "https://placeimg.com/140/140/any",
-        },
-      },
+  // useEffect(() => {
+  //   onSnapshot(query(collection(db, "messages")), orderBy("createdAt", "desc"));
+  // }, []);
 
-      {
-        _id: 2,
-        text: "Hello developer",
-        createdAt: new Date(),
-        user: {
-          _id: 2,
-          name: "React Native",
-          avatar: "https://placeimg.com/140/140/any",
-        },
-      },
-      {
-        _id: 1,
-        text: `${name ? name : "anon"} just entered the chat`,
-        createdAt: new Date(),
-        system: true,
-      },
-    ]);
+  //cheatsheet ref
+  useEffect(() => {
+    navigation.setOptions({ title: name });
+    const q = query(collection(db, "messages"), orderBy("createdAt", "desc"));
+    const unsubMessages = onSnapshot(q, (docs) => {
+      let newMessages = [];
+      docs.forEach((doc) => {
+        newMessages.push({
+          id: doc.id,
+          ...doc.data(),
+          createdAt: new Date(doc.data().createdAt.toMillis()),
+        });
+      });
+      setMessages(newMessages);
+    });
+    return () => {
+      if (unsubMessages) unsubMessages();
+    };
   }, []);
   useEffect(() => {
     navigation.setOptions({ title: name });
@@ -73,7 +72,7 @@ const Chat = ({ route, navigation }) => {
         messages={messages}
         renderBubble={renderBubble}
         onSend={(messages) => onSend(messages)}
-        user={{ _id: 1 }}
+        user={{ id: 1, name: name }}
       />
 
       {/* when typing, makes the keyboard not hide imput or information that would be behind it */}
@@ -83,7 +82,6 @@ const Chat = ({ route, navigation }) => {
     </View>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     // fontSize: 40,

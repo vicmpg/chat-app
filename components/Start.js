@@ -1,6 +1,7 @@
 import { StatusBar } from "expo-status-bar";
 import { useState } from "react";
 import {
+  Alert,
   Button,
   ImageBackground,
   ImageBase,
@@ -12,19 +13,35 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-// import img from "../assets/splash.png";
+import { getAuth, signInAnonymously } from "firebase/auth";
 const imgBackground = require("../assets/bg-startscreen.png");
 const Start = ({ navigation }) => {
   const [background, setBackground] = useState();
   const [username, setUsername] = useState();
-  //   const colorsArray = ["green", "blue", "red", "black"];
+  const auth = getAuth();
 
+  const signInUser = () => {
+    signInAnonymously(auth)
+      .then((result) => {
+        navigation.navigate("Chat", {
+          userID: result.user.uid,
+          name: username,
+          color: background,
+        });
+        Alert.alert("signed in successfully");
+      })
+      .catch((error) => {
+        Alert.alert("unable to sign it, try again later");
+        console.log(error);
+      });
+  };
+
+  //   const colorsArray = ["green", "blue", "red", "black"];
   return (
     <View style={styles.container}>
       <ImageBackground source={imgBackground} style={styles.image}>
         {/* app title: */}
         <Text style={styles.title}>Chatroom App</Text>
-
         {/* container for imput, color choice and button */}
         <View style={styles.imputBox}>
           {/* username imput */}
@@ -34,24 +51,19 @@ const Start = ({ navigation }) => {
             onChangeText={setUsername}
             style={styles.textImput}
           ></TextInput>
-
           <View>
             <Text style={styles.chooseBgText}>Choose Background Color</Text>
-
             {/* testing color update: */}
             {/* <Text>{background}</Text> */}
-
             {/* container for colors: */}
             <View style={styles.colorButtonBox}>
               {/* color 1 */}
-
               <TouchableOpacity
                 style={[styles.colorButton, styles.colorInput1]}
                 onPress={() => {
                   setBackground(styles.colorInput1.backgroundColor);
                 }}
               ></TouchableOpacity>
-
               {/* color 2 */}
               <TouchableOpacity
                 style={[styles.colorButton, styles.colorInput2]}
@@ -59,7 +71,6 @@ const Start = ({ navigation }) => {
                   setBackground(styles.colorInput2.backgroundColor);
                 }}
               ></TouchableOpacity>
-
               {/* color 3 */}
               <TouchableOpacity
                 style={[styles.colorButton, styles.colorInput3]}
@@ -67,7 +78,6 @@ const Start = ({ navigation }) => {
                   setBackground(styles.colorInput3.backgroundColor);
                 }}
               ></TouchableOpacity>
-
               {/* color 4 */}
               <TouchableOpacity
                 style={[styles.colorButton, styles.colorInput4]}
@@ -81,17 +91,13 @@ const Start = ({ navigation }) => {
           <TouchableOpacity
             style={styles.button}
             onPress={() => {
-              navigation.navigate("Chat", {
-                name: username,
-                color: background,
-              });
+              signInUser();
             }}
           >
             <Text style={styles.buttonText}>Start Chatting</Text>
           </TouchableOpacity>
         </View>
       </ImageBackground>
-
       {/* when typing, makes the keyboard not hide imput or information that would be behind it // padding should be used for ios instead of "height*/}
       {Platform.OS === "ios" ? (
         <KeyboardAvoidingView behavior="padding" />
@@ -99,7 +105,6 @@ const Start = ({ navigation }) => {
     </View>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -187,5 +192,4 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
 });
-
 export default Start;
