@@ -1,14 +1,31 @@
-import { NavigationContainer } from "@react-navigation/native";
-import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
-import Start from "./components/Start";
-import Chat from "./components/Chat";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { StatusBar } from 'expo-status-bar';
+import { StyleSheet, Text, View } from 'react-native';
+import Start from './components/Start';
+import Chat from './components/Chat';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import { disableNetwork, enableNetwork, getFirestore } from "firebase/firestore";
+import { useEffect } from "react";
+import { LogBox, Alert } from "react-native";
+
+import { useNetInfo }from '@react-native-community/netinfo';
 
 const Stack = createNativeStackNavigator();
+LogBox.ignoreLogs(["AsyncStorage has been extracted from"]);
+
 const App = () => {
+
+  const connectionStatus = useNetInfo();
+
+  useEffect(() => {
+    if (connectionStatus.isConnected === false) {
+      Alert.alert("Connection Lost!");
+      disableNetwork(db);
+    } else if (connectionStatus.isConnected === true) {
+      enableNetwork(db);
+    }
+  }, [connectionStatus.isConnected]);
 
   const firebaseConfig = {
     apiKey: "AIzaSyAXcWnd25NIE8xfGU-bYC7R9QcPRg6Wj90",
@@ -19,6 +36,8 @@ const App = () => {
     appId: "1:365205187693:web:5c850c61d645d3bb876364",
     measurementId: "G-NC08XKFZVW"
   };
+
+
   
   // Initialize Firebase
   const app = initializeApp(firebaseConfig);
@@ -28,21 +47,32 @@ const App = () => {
   
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Start">
-        <Stack.Screen name="Start" component={Start}></Stack.Screen>
-        <Stack.Screen name="Chat">
-          {(props) => <Chat db={db} {...props} />}
+      <Stack.Navigator
+        initialRouteName="Start"
+      >
+        <Stack.Screen
+          name="Start"
+          component={Start}
+        />
+       <Stack.Screen name="Chat">
+          {(props) => (
+            <Chat
+              db={db}
+              isConnected={connectionStatus.isConnected}
+              {...props}
+            />
+          )}
         </Stack.Screen>
       </Stack.Navigator>
     </NavigationContainer>
   );
-};
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});
+}
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     backgroundColor: '#fff',
+//     alignItems: 'center',
+//     justifyContent: 'center',
+//   },
+// });
 export default App;
