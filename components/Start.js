@@ -1,10 +1,8 @@
-import { StatusBar } from "expo-status-bar";
-import { useState } from "react";
+
+import React, { useState } from "react";
 import {
   Alert,
-  Button,
   ImageBackground,
-  ImageBase,
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
